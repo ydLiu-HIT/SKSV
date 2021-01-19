@@ -1,0 +1,284 @@
+#!/bin/bash
+
+function usage {
+    echo -e "Program:\tSKSV-ultrafast structural variant detection from raw reads"
+    echo -e "Version:\t1.0.1"
+    echo -e "Contact:\t<ydliu@hit.edu.cn>\n"
+
+    echo -e "Usage:\tSKSV <commad> [options]"
+    echo -e "Command: "
+    echo -e "\tindex\tindex the reference sequence using de bruijn graph"
+    echo -e "\taln\tgenerate alignment skeletons for SV signatures and output to svseg format file"
+    echo -e "\tcall \tperform structural variants calling"
+}
+
+function parse_ALN() {
+    TASK=""
+    eval set -- "${ARGS}"
+    while true
+    do
+        case "$1" in 
+            -t|--thread)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -k|--index_kmer)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -s|--seed_kmer)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -d|--hash_kmer)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -B|--batch_size)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -l|--sv_lim)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -m|--error_model)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -w|--block)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -x|--edit_dis)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -e|--seed_step)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -M|--extend_mx)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -N|--top_N)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -g|--rd_mx_gap)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -G|--rf_mx_gap)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -Y|--min_chain_score)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -p|--secondary_ratio)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -P|--overlap_ratio)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -o|--output)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
+            -h|--help)
+                TASK=$TASK$1" "
+                shift
+                ;;
+            --)
+                shift
+                break
+                ;;
+            *)
+                echo "[ERROR] Invalid parameter $1"
+                exit 1
+                ;;
+        esac
+    done
+
+    for arg in $@
+    do
+        if [ $arg != "aln" ]; then
+            TASK=$TASK$arg" "
+        fi
+    done
+
+    echo ${TASK}
+}
+
+
+function parse_CALL() {
+    TASK=""
+    eval set -- "${ARGS}"
+    while true
+    do
+        case "$1" in 
+            -v|--version)
+                TASK=$TASK$1" "
+                shift ;;
+            -t|--threads)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            -b|--batches)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            -S|--sample)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --retain_work_dir)
+                TASK=$TASK$1" "
+                shift ;;
+            -p|--max_split_parts)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            -q|--min_mapq)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            -r|--min_read_len)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            -s|--min_support)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            -l|--min_size)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            -L|--max_size)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --min_siglength)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --merge_del_threshold)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --merge_ins_threshold)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --min_siglength)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --genotype)
+                TASK=$TASK$1" "
+                shift ;;
+            --gt_round)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --max_cluster_bias_INS)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --max_cluster_bias_DEL)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --diff_ratio_merging_INS)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --diff_ratio_filtering_INS)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --diff_ratio_merging_DEL)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --diff_ratio_filtering_DEL)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --max_cluster_bias_DUP)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --max_cluster_bias_INV)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --max_cluster_bias_TRA)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            --diff_ratio_filtering_TRA)
+                TASK=$TASK$1" "$2" "
+                shift 2 ;;
+            -h)
+                TASK=$TASK$1" "
+                shift ;;
+            --)
+                shift
+                break
+                ;;
+            *)
+                echo "[ERROR] Invalid parameter $1"
+                exit 1
+                ;;
+        esac
+    done
+
+    for arg in $@
+    do
+        if [ $arg != "call" ]; then
+            TASK=$TASK$arg" "
+        fi
+    done
+
+    echo ${TASK}
+}
+
+
+basepath=$(cd `dirname $0`; pwd)
+#echo $basepath
+ARGS=""
+CMD=$1
+if [ "${CMD}" = "index" ]; then
+    INDEX_BIN="${basepath}/skeleton/SKSV-skeleton"
+    if [ $# -lt 2 ]; then    
+        if [ -x ${INDEX_BIN} ]; then
+            ${INDEX_BIN} index
+            echo "[ERROR] too few arguments!"
+        else
+            echo ${INDEX_BIN}" not exist!"
+        fi
+    else
+        ${INDEX_BIN} index $2 $3 #run index
+    fi
+elif [ "${CMD}" = "aln" ]; then
+    ALN_BIN="${basepath}/skeleton/SKSV-skeleton"
+    ARGS=`getopt -o t:k:s:d:B:l:m:w:x:e:M:N:g:G:Y:p:P:o:h --long thread:,index_kmer:,seeding_kmer:,hash_kmer:,batch_size:,sv_lim:,error_model:,block:,edit_dis:,seed_step:,extend_mx:,top_N:,rd_mx_gap:,rf_mx_gap:,min_chain_score:,secondary_ratio:,overlap_ratio:,output: -n 'SKSV.sh' -- "$@"`
+    if [ $# -lt 2 ]; then
+        if [ -x ${ALN_BIN} ]; then
+            ${ALN_BIN} aln
+            echo -e "\n[ERROR] too few arguments!"
+        else
+            echo ${ALN_BIN}" not exist!"
+        fi
+    else
+        TASK=$(parse_ALN)
+        TASK=${ALN_BIN}" aln "$TASK
+        #  run alignment #
+        $TASK 
+    fi
+elif [ "${CMD}" = "call" ]; then
+    CALL_BIN="${basepath}/calling/SKSV-call.py"
+    ARGS=`getopt -o hvt:b:S:p:q:r:s:l:L: --long version,threads:,batches:,sample:,retain_work_dir,max_split_parts:,min_mapq:,min_read_len:,merge_del_threshold:,merge_ins_threshold:,min_support:,min_size:,max_size:,min_siglength:,genotype,gt_round:,max_cluster_bias_INS:,diff_ratio_merging_INS:,diff_ratio_filtering_INS:,max_cluster_bias_DEL:,diff_ratio_merging_DEL:,diff_ratio_filtering_DEL:,max_cluster_bias_INV:,max_cluster_bias_DUP:,max_cluster_bias_TRA:,diff_ratio_filtering_TRA: -n 'SKSV.sh' -- "$@"`
+    if [ $# -lt 2 ]; then
+        if [ -x ${CALL_BIN} ]; then
+            python ${CALL_BIN}
+            echo "[ERROR] too few arguments!"
+        else
+            echo ${CALL_BIN}" not exist!"
+        fi
+    else
+        TASK=$(parse_CALL)
+        TASK="python "${CALL_BIN}" "${TASK}  #pypy3
+        #  run calling #
+        $TASK 
+    fi
+else
+    usage
+    echo "[ERROR] Invalid command '${CMD}'"
+fi
+
+
