@@ -74,7 +74,7 @@ Algorithm options:
 
 Output options:
 
-    -o --output    [STR]    Output file for SV signatures in svseg format. [sk.svseg]
+    -o --output    	  [STR]    Output file for SV signatures in svseg format. [sk.svseg]
     -h --help                      Show detailed usage.
 ```
 
@@ -148,10 +148,13 @@ Advanced:
 
 ## Datasets 
 We implemented the benchmarks on a server with Intel Xeon E4280 2.0GHZ CPU and 1 Terabytes RAM, running Linux Ubuntu 16.04. 
+
 The real HG002 PacBio CCS reads were downloaded from: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG002_NA24385_son/PacBio_SequelII_CCS_11kb/reads/. 
+
 The GIAB ground truth set and corresponding high confidence region set were downloaded from: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/NIST_SV_v0.6/.
+
 Truvari (v2.0.0, https://github.com/spiralgenetics/truvari) was used to assess the precision, recall, and F1 score.
 
 ## Contact
-For advising, bug reporting and requiring help, please post on GitHub Issue or contact ydliu@hit.edu.cn.
+For advising, bug reporting and requiring help, please post on **[Github Issues](https://github.com/ydLiu-HIT/deSALT/issues)** or contact ydliu@hit.edu.cn.
 
