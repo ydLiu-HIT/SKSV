@@ -2,7 +2,7 @@
 ultrafast structural variation detection from circular consensus sequencing reads
 
 ## Getting Start
-    git clone --recursive https://github.com/ydLiu-HIT/SKSV.git
+    git clone https://github.com/ydLiu-HIT/SKSV.git
     cd SKSV/skeleton/
     make   ## built ./SKSV-skeleton
     cd ..
