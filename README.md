@@ -38,13 +38,15 @@ SKSV call skeleton.svseg ref.fa output.vcf workdir
 ```
 
 ## Commands and options
-**index**
+```
+**Genome index**
 Usage:     SKSV-skeleton index [Options] <Reference> <HashIndexDir>
 <Reference>            Sequence of reference genome, in FASTA format
 <HashIndexDir>         The directory to store deBGA index
-    
+``` 
 
-**aln**
+```
+**Skeleton alignment**
 Usage:     SKSV-skeleton aln [options] <index_route> <read.fa/fq>
 
     <index_route>                 The path of RdBG index.
@@ -74,6 +76,74 @@ Output options:
 
     -o --output    [STR]    Output file for SV signatures in svseg format. [sk.svseg]
     -h --help                      Show detailed usage.
+```
 
+**Variants calling**
+```
+positional arguments:
+  input                 Skeletons from SKSV-skeleton in svseg fromat.
+  ref                   The reference genome in fasta format.
+  output                Output VCF format file.
+  work_dir              Work-directory for distributed jobs
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --version, -v         show program's version number and exit
+  -t THREADS, --threads THREADS
+                        Number of threads to use.[16]
+  -b BATCHES, --batches BATCHES
+                        Batch of genome segmentation interval.[10000000]
+  -S SAMPLE, --sample SAMPLE
+                        Sample name/id
+  --retain_work_dir     Enable to retain temporary folder and files.
+
+Collection of SV signatures:
+  -p MAX_SPLIT_PARTS, --max_split_parts MAX_SPLIT_PARTS
+                        Maximum number of split segments a read may be aligned before it is ignored.[7]
+  -q MIN_MAPQ, --min_mapq MIN_MAPQ
+                        Minimum mapping quality value of alignment to be taken into account.[20]
+  -r MIN_READ_LEN, --min_read_len MIN_READ_LEN
+                        Ignores reads that only report alignments with not longer than bp.[500]
+  -md MERGE_DEL_THRESHOLD, --merge_del_threshold MERGE_DEL_THRESHOLD
+                        Maximum distance of deletion signals to be merged.[0]
+  -mi MERGE_INS_THRESHOLD, --merge_ins_threshold MERGE_INS_THRESHOLD
+                        Maximum distance of insertion signals to be merged.[100]
+
+Generation of SV clusters:
+  -s MIN_SUPPORT, --min_support MIN_SUPPORT
+                        Minimum number of reads that support a SV to be reported.[10]
+  -l MIN_SIZE, --min_size MIN_SIZE
+                        Minimum size of SV to be reported.[30]
+  -L MAX_SIZE, --max_size MAX_SIZE
+                        Maximum size of SV to be reported.[100000]
+  -sl MIN_SIGLENGTH, --min_siglength MIN_SIGLENGTH
+                        Minimum length of SV signal to be extracted.[10]
+
+Computing genotypes:
+  --genotype            Enable to generate genotypes.
+  --gt_round GT_ROUND   Maximum round of iteration for alignments searching if perform genotyping.[500]
+
+Advanced:
+  --max_cluster_bias_INS MAX_CLUSTER_BIAS_INS
+                        Maximum distance to cluster read together for insertion.[100]
+  --diff_ratio_merging_INS DIFF_RATIO_MERGING_INS
+                        Do not merge breakpoints with basepair identity more than [0.2] for insertion.
+  --diff_ratio_filtering_INS DIFF_RATIO_FILTERING_INS
+                        Filter breakpoints with basepair identity less than [0.6] for insertion.
+  --max_cluster_bias_DEL MAX_CLUSTER_BIAS_DEL
+                        Maximum distance to cluster read together for deletion.[200]
+  --diff_ratio_merging_DEL DIFF_RATIO_MERGING_DEL
+                        Do not merge breakpoints with basepair identity more than [0.3] for deletion.
+  --diff_ratio_filtering_DEL DIFF_RATIO_FILTERING_DEL
+                        Filter breakpoints with basepair identity less than [0.7] for deletion.
+  --max_cluster_bias_INV MAX_CLUSTER_BIAS_INV
+                        Maximum distance to cluster read together for inversion.[500]
+  --max_cluster_bias_DUP MAX_CLUSTER_BIAS_DUP
+                        Maximum distance to cluster read together for duplication.[500]
+  --max_cluster_bias_TRA MAX_CLUSTER_BIAS_TRA
+                        Maximum distance to cluster read together for translocation.[50]
+  --diff_ratio_filtering_TRA DIFF_RATIO_FILTERING_TRA
+                        Filter breakpoints with basepair identity less than [0.6] for translocation.
+```
 
 
