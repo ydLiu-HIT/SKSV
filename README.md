@@ -38,15 +38,15 @@ SKSV call skeleton.svseg ref.fa output.vcf workdir
 ```
 
 ## Commands and options
-```
 **Genome index**
+```
 Usage:     SKSV-skeleton index [Options] <Reference> <HashIndexDir>
 <Reference>            Sequence of reference genome, in FASTA format
 <HashIndexDir>         The directory to store deBGA index
 ``` 
 
-```
 **Skeleton alignment**
+```
 Usage:     SKSV-skeleton aln [options] <index_route> <read.fa/fq>
 
     <index_route>                 The path of RdBG index.
@@ -146,4 +146,12 @@ Advanced:
                         Filter breakpoints with basepair identity less than [0.6] for translocation.
 ```
 
+## Datasets 
+We implemented the benchmarks on a server with Intel Xeon E4280 2.0GHZ CPU and 1 Terabytes RAM, running Linux Ubuntu 16.04. 
+The real HG002 PacBio CCS reads were downloaded from: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG002_NA24385_son/PacBio_SequelII_CCS_11kb/reads/. 
+The GIAB ground truth set and corresponding high confidence region set were downloaded from: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/NIST_SV_v0.6/.
+Truvari (v2.0.0, https://github.com/spiralgenetics/truvari) was used to assess the precision, recall, and F1 score.
+
+## Contact
+For advising, bug reporting and requiring help, please post on GitHub Issue or contact ydliu@hit.edu.cn.
 
