@@ -156,5 +156,5 @@ The GIAB ground truth set and corresponding high confidence region set were down
 Truvari (v2.0.0, https://github.com/spiralgenetics/truvari) was used to assess the precision, recall, and F1 score.
 
 ## Contact
-For advising, bug reporting and requiring help, please post on **[Github Issues](https://github.com/ydLiu-HIT/deSALT/issues)** or contact ydliu@hit.edu.cn.
+For advising, bug reporting and requiring help, please post on **[Github Issues](https://github.com/ydLiu-HIT/SKSV/issues)** or contact ydliu@hit.edu.cn.
 
