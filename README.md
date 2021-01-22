@@ -147,7 +147,7 @@ Advanced:
 ```
 
 ## Datasets 
-We implemented the benchmarks on a server with Intel Xeon E4280 2.0GHZ CPU and 1 Terabytes RAM, running Linux Ubuntu 16.04. 
+We implemented the benchmarks on a server with AMD Ryzen 3950X CPU and 120GB RAM, running Linux Ubuntu 16.04.
 
 The real HG002 PacBio CCS reads were downloaded from: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/HG002_NA24385_son/PacBio_SequelII_CCS_11kb/reads/. 
 
