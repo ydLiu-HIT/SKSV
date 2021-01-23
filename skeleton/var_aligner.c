@@ -338,12 +338,6 @@ uint32_t get_seed_vl_len(uint8_t *read, uint32_t read_l, uint8_t _seed_k)
 }
 
 
-int32_t Krealloc(uint32_t *cigar, int32_t n_cigar)
-{
-    cigar = (uint32_t *)realloc(cigar, n_cigar<<4);
-    return n_cigar;
-}
-
 void set_sd_hit_nd(sd_hit_t *sd, int32_t hit_n, uint32_t rd_len, uint32_t rd_off, uint32_t rf_off, int chr_name_i, uint32_t mem_len, int lv_l, int lv_l_i, int tl_e, int lv_r, int lv_r_i, int tr_e, int z)
 {
 #ifdef ext_hit_nd
@@ -390,51 +384,6 @@ int can_be_removed(sd_hit_t *sd_hit1, sd_hit_t *sd_hit2, int THRESHOLD)
         return 1;
     else
         return 0;
-}
-
-void remove_secondary_path(sd_hit_t *nd_a, int *sd_bt_path, int *sd_bt_n)
-{
-    sd_hit_t *sd_hit1, *sd_hit2;
-    int l = *sd_bt_n;
-    int sd_n = 1;
-    int32_t THRESHOLD = 10000;
-
-    for(int i = 1; i < l; ++i)
-    {
-        
-        sd_hit1 = &nd_a[sd_bt_path[sd_n-1]];
-        sd_hit2 = &nd_a[sd_bt_path[i]];
-        if(sd_hit2->path_range == sd_hit1->path_range)
-        {
-            sd_bt_path[sd_n++] = sd_bt_path[i];
-        }
-        else
-        {
-            int j = sd_n - 1;
-            while(j >= 0)
-            {
-                sd_hit1 = &nd_a[sd_bt_path[sd_n-1]];
-                if(can_be_removed(sd_hit1, sd_hit2, THRESHOLD)==1 && (sd_hit1->chr_name_i == sd_hit2->chr_name_i))
-                {
-                    sd_bt_path[sd_n++] = sd_bt_path[i];
-                    break;
-                }
-                else
-                {
-                    if(sd_hit1->path_range <= sd_hit2->path_range)
-                    {
-                        break;
-                    }
-                    sd_n -= 1;
-                }
-                j--;
-            }
-            if(j < 0)
-                sd_bt_path[sd_n++] = sd_bt_path[i];
-        }
-    }
-
-    *sd_bt_n = sd_n;
 }
 
 
@@ -890,20 +839,6 @@ void update_hit_vld(uint32_t *a1, uint32_t *a2, uint32_t  *b1, uint32_t *b2, \
     *a2 = x2; *b2 = y2;
 }
 
-int chain_score(sd_hit_t *sd_hit_a, int *sd_bt_path, int sd_bt_n)
-{
-    sd_hit_t *sd_hit;
-    int dp_max = -1;
-    for(int i = 0; i < sd_bt_n; ++i)
-    {
-        sd_hit = &sd_hit_a[sd_bt_path[i]];
-        if(sd_hit->dp_max == -1) continue;
-        
-        if(sd_hit->dp_max > dp_max)
-            dp_max = sd_hit->dp_max;
-    }
-    return dp_max;
-}
 
 void do_sv_detection(uint32_t rd_i, rd_handle_dt * t_rd_d, rst_ent_dt *t_rst_rec, int32_t *t_rst_rec_n, sd_hit_t **sd_hit_rst, int *sd_hit_rst_n, sd_hit_t **sd_hit_a, int **sd_bt_path, int *sd_bt_n)
 {
@@ -1924,10 +1859,6 @@ int single_core_aln(uint32_t rd_i, rd_handle_dt * t_rd_d)
     return 0;
 }
 
-int cal_MQ(double mapq, double MAX_MQ)
-{
-    return (int)(-10*log10(MX(1-mapq, MAX_MQ)));
-}
 
 void log_rst_rec(uint32_t rd_i, double MAX_MQ)
 {
