@@ -29,7 +29,7 @@ void opt_init(opt_t *opt)
     opt->thread_n = 4;
     opt->seed_step = 20;
 
-    opt->max_lv_e = 3;
+    opt->max_lv_e = 0;
 	opt->read_kmer_match_mx = 30;
 	opt->read_kmer_ref_mx = 5;
 	opt->ref_kmer_hit_mx = 20;
