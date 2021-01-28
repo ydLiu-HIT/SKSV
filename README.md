@@ -9,7 +9,8 @@ ultrafast structural variation detection from circular consensus sequencing read
     
     ./SKSV index ref.fa index_route   # build index 
     ./SKSV aln index_route read.fq    # skeleton-alignment
-    ./SKSV call in.svseg ref.fa out.vcf word_dir # call variants using in.svseg file
+    ./SKSV call in.svseg ref.fa out.vcf work_dir # call variants using in.svseg file
+    (User should `mkdir work_dir` first)
         
     ## add to enviroment path
     vim ~/.bashrc
