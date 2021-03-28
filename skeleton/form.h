@@ -53,7 +53,6 @@ typedef struct{
     int max_lv_e;
     int ref_lv_bnd_len;
 
-    uint8_t rht_k;
     uint32_t rht_n_max;
     uint32_t seed_hit_n_max;
     uint16_t rst_seed_hit_n_max;

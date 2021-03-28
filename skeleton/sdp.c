@@ -172,7 +172,7 @@ int run_greed_kht(kpht_t *kht, uint8_t *rd, uint32_t rd_l, uint32_t rd_off, uint
         {
             int hit_n = (_ht+kmer_tmp)->len;
 #ifdef print_greed
-            printf("hit_n = %d\n", hit_n);
+            //printf("hit_n = %d\n", hit_n);
 #endif
             uint32_t hit_i = (_ht+kmer_tmp)->head, tv = hit_i;
             uint16_t mx_e = 0;               

@@ -3,11 +3,12 @@
  * @Title:  cuteSV_Description.py
  * @author: tjiang
  * @date: Apr 26th 2020
- * @version V1.0.6   
+ * @version V1.0.10   
 '''
 import argparse
 
-VERSION = '1.0.6'
+VERSION_1 = '1.0.2'
+VERSION = '1.0.10'
 
 
 class cuteSVdp(object):
@@ -20,7 +21,7 @@ class cuteSVdp(object):
 	Long read based fast and accurate SV detection with cuteSV.
 	
 	Current version: v%s
-	Author: Tao Jiang
+	Author: Tao Jiang, Yadong Liu
 	Contact: tjiang@hit.edu.cn
 
 
@@ -28,13 +29,11 @@ class cuteSVdp(object):
 
 	For PacBio CCS(HIFI) data:
 		--max_cluster_bias_INS	        800	
-		--diff_ratio_merging_INS	0.5
-		--diff_ratio_filtering_INS	0.5
+		--diff_ratio_merging_INS	0.9
                 --max_cluster_bias_DEL          1000
-                --diff_ratio_merging_DEL        0.4
-		--diff_ratio_filtering_DEL	0.5
-                -mi 500
-                -md 500
+                --diff_ratio_merging_DEL        0.5
+                --merge_del_threshold           500
+                --merge_ins_threshold           500
 
 
 	""" % (VERSION)
@@ -54,7 +53,7 @@ def parseArgs(argv):
     # **************Parameters of input******************
     parser.add_argument("input",
                         type=str,
-                        help="Skeletons from SKSV-skeleton in svseg fromat.")
+                        help="Skeletons from SKSV-skeleton in svseg fromat.") 
     parser.add_argument("ref",
                         type=str,
                         help="The reference genome in fasta format.")
@@ -65,7 +64,7 @@ def parseArgs(argv):
                         type=str,
                         help="Work-directory for distributed jobs")
 
-    # ************** Other Parameters******************
+    # ************** Other Parameters****************** 
     parser.add_argument('-t', '--threads',
                         help="Number of threads to use.[%(default)s]",
                         default=16,
@@ -84,27 +83,23 @@ def parseArgs(argv):
                         help="Enable to retain temporary folder and files.",
                         action="store_true")
 
+    parser.add_argument('--report_readid',
+                        help="Enable to report supporting read ids for each SV.",
+                        action="store_true")
+
     # **************Parameters in signatures collection******************
     GroupSignaturesCollect = parser.add_argument_group(
         'Collection of SV signatures')
-    GroupSignaturesCollect.add_argument('-p', '--max_split_parts',
-                                        help="Maximum number of split segments a read may be aligned before it is ignored.[%(default)s]",
-                                        default=7,
-                                        type=int)
-    GroupSignaturesCollect.add_argument('-q', '--min_mapq',
-                                        help="Minimum mapping quality value of alignment to be taken into account.[%(default)s]",
-                                        default=20,
-                                        type=int)
     GroupSignaturesCollect.add_argument('-r', '--min_read_len',
                                         help="Ignores reads that only report alignments with not longer than bp.[%(default)s]",
                                         default=500,
                                         type=int)
-    GroupSignaturesCollect.add_argument('-md', '--merge_del_threshold',
-                                        help="Maximum distance of deletion signals to be merged.[%(default)s]",
+    GroupSignaturesCollect.add_argument('--merge_del_threshold',
+                                        help="Maximum distance of deletion signals to be merged. In our paper, I used -md 500 to process HG002 real human sample data.[%(default)s]",
                                         default=0,
                                         type=int)
-    GroupSignaturesCollect.add_argument('-mi', '--merge_ins_threshold',
-                                        help="Maximum distance of insertion signals to be merged.[%(default)s]",
+    GroupSignaturesCollect.add_argument('--merge_ins_threshold',
+                                        help="Maximum distance of insertion signals to be merged. In our paper, I used -mi 500 to process HG002 real human sample data.[%(default)s]",
                                         default=100,
                                         type=int)
     # The min_read_len in last version is 2000.
@@ -138,6 +133,17 @@ def parseArgs(argv):
                                help="Maximum round of iteration for alignments searching if perform genotyping.[%(default)s]",
                                default=500,
                                type=int)
+
+    # **************Parameters in generating allele sequence******************
+    GroupSequence = parser.add_argument_group('Generate allele sequence')
+    GroupSequence.add_argument("--read",
+                        type=str,
+                        default="None",
+                        help="Raw reads in bgzip fasta/fastq format with index by samtools for extract inserted sequence for insertions.")
+    GroupSequence.add_argument('--print_allele_seq',
+                               help="Enable to print inserted sequence for an insertion variant. If --print_allele_seq was set, --read is needed.",
+                               action="store_true")
+
     # GroupGenotype.add_argument('--hom',
     # 	help = "Threshold on allele frequency for homozygous.[%(default)s]",
     # 	default = 0.8,
@@ -160,29 +166,20 @@ def parseArgs(argv):
     # ++++++INS++++++
     GroupAdvanced.add_argument('--max_cluster_bias_INS',
                                help="Maximum distance to cluster read together for insertion.[%(default)s]",
-                               default=100,
+                               default=800,
                                type=int)
     GroupAdvanced.add_argument('--diff_ratio_merging_INS',
                                help="Do not merge breakpoints with basepair identity more than [%(default)s] for insertion.",
-                               default=0.2,
+                               default=0.9,
                                type=float)
-    GroupAdvanced.add_argument('--diff_ratio_filtering_INS',
-                               help="Filter breakpoints with basepair identity less than [%(default)s] for insertion.",
-                               default=0.6,
-                               type=float)
-
     # ++++++DEL++++++
     GroupAdvanced.add_argument('--max_cluster_bias_DEL',
                                help="Maximum distance to cluster read together for deletion.[%(default)s]",
-                               default=200,
+                               default=1000,
                                type=int)
     GroupAdvanced.add_argument('--diff_ratio_merging_DEL',
                                help="Do not merge breakpoints with basepair identity more than [%(default)s] for deletion.",
-                               default=0.3,
-                               type=float)
-    GroupAdvanced.add_argument('--diff_ratio_filtering_DEL',
-                               help="Filter breakpoints with basepair identity less than [%(default)s] for deletion.",
-                               default=0.7,
+                               default=0.5,
                                type=float)
 
     # ++++++INV++++++
@@ -207,15 +204,6 @@ def parseArgs(argv):
                                default=0.6,
                                type=float)
 
-    # parser.add_argument('-d', '--max_distance',
-    # 	help = "Maximum distance to group SV together..[%(default)s]",
-    # 	default = 1000, type = int)
-
-    # These parameters are drawn lessons from pbsv v2.2.0
-    # parser.add_argument('--min_del_size',
-    # 	help = "Minimum size of a deletion.[%(default)s]",
-    # 	default = 20, type = int)
-
     args = parser.parse_args(argv)
     return args
 
@@ -223,7 +211,7 @@ def parseArgs(argv):
 def Generation_VCF_header(file, contiginfo, sample, argv):
     # General header
     file.write("##fileformat=VCFv4.2\n")
-    file.write("##source=cuteSV-%s\n" % (VERSION))
+    file.write("##source=SKSV-%s/cuteSV-%s\n" % (VERSION_1,VERSION))
     import time
     file.write("##fileDate=%s\n" %
                (time.strftime('%Y-%m-%d %H:%M:%S %w-%Z', time.localtime())))
@@ -257,7 +245,9 @@ def Generation_VCF_header(file, contiginfo, sample, argv):
     # file.write("##INFO=<ID=MATEID,Number=.,Type=String,Description=\"ID of mate breakends\">\n")
     file.write(
         "##INFO=<ID=RE,Number=1,Type=Integer,Description=\"Number of read support this record\">\n")
-    file.write("##INFO=<ID=STRAND,Number=1,Type=String,Description=\"Strand orientation of the adjacency in BEDPE format (DEL:+-, DUP:-+, INV:++/--)\">>\n")
+    file.write("##INFO=<ID=STRAND,Number=A,Type=String,Description=\"Strand orientation of the adjacency in BEDPE format (DEL:+-, DUP:-+, INV:++/--)\">\n")
+    file.write(
+        "##INFO=<ID=RNAMES,Number=.,Type=String,Description=\"Supporting read names of SVs (comma separated)\">\n")
     file.write("##FILTER=<ID=q5,Description=\"Quality below 5\">\n")
     # FORMAT
     # file.write("\n")
@@ -266,10 +256,9 @@ def Generation_VCF_header(file, contiginfo, sample, argv):
         "##FORMAT=<ID=DR,Number=1,Type=Integer,Description=\"# High-quality reference reads\">\n")
     file.write(
         "##FORMAT=<ID=DV,Number=1,Type=Integer,Description=\"# High-quality variant reads\">\n")
-    file.write("##FORMAT=<ID=PL,Number=3,Type=Integer,Description=\"# Phred-scaled genotype likelihoods rounded to the closest integer\">\n")
+    file.write("##FORMAT=<ID=PL,Number=G,Type=Integer,Description=\"# Phred-scaled genotype likelihoods rounded to the closest integer\">\n")
     file.write(
         "##FORMAT=<ID=GQ,Number=1,Type=Integer,Description=\"# Genotype quality\">\n")
 
-    file.write("##CommandLine=\"SKSV call %s\"\n" % (" ".join(argv)))
-    file.write(
-        "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\n" % (sample))
+    file.write("##CommandLine=\"cuteSV %s\"\n" % (" ".join(argv)))
+

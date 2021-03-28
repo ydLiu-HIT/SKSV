@@ -888,15 +888,14 @@ void do_sv_detection(uint32_t rd_i, rd_handle_dt * t_rd_d, rst_ent_dt *t_rst_rec
         //merge when co-linear
         int _cur_path_range, _cur_path_id, _cur_dir;
         int leftmost_id = -1, rightmost_id = sd_bt_n[z];
-#ifdef print_sv
-        for (int i = 0; i < rightmost_id; ++i )
-        {
-            int ti = sd_bt_path[z][i];
-            sd_hit_t *sdt = sd_hit_a[z]+ti;
-            printf("path_id = %d, node_id = %d, path_range = %d, is_valid = %d, rdl = %u, rdr = %u, rfl = %u, rfr = %u\n", i, ti, sdt->path_range, sdt->is_valid, sdt->rd_l, sdt->rd_r, sdt->rf_l, sdt->rf_r);
-        }
-#endif
-        
+//#ifdef print_sv
+//        for (int i = 0; i < rightmost_id; ++i )
+//        {
+//            int ti = sd_bt_path[z][i];
+//            sd_hit_t *sdt = sd_hit_a[z]+ti;
+//            printf("path_id = %d, node_id = %d, path_range = %d, is_valid = %d, rdl = %u, rdr = %u, rfl = %u, rfr = %u\n", i, ti, sdt->path_range, sdt->is_valid, sdt->rd_l, sdt->rd_r, sdt->rf_l, sdt->rf_r);
+//        }
+//#endif
 
         for (int o = 0; o < sd_bt_n[z]; ++o)
         {
@@ -966,7 +965,8 @@ void do_sv_detection(uint32_t rd_i, rd_handle_dt * t_rd_d, rst_ent_dt *t_rst_rec
         {
             int ti = sd_bt_path[z][i];
             sd_hit_t *sdt = sd_hit_a[z]+ti;
-            printf("path_id = %d, node_id = %d, path_range = %d, is_valid = %d, rdl = %u, rdr = %u, rfl = %u, rfr = %u\n", i, ti, sdt->path_range, sdt->is_valid, sdt->rd_l, sdt->rd_r, sdt->rf_l, sdt->rf_r);
+            if (sdt->is_valid == 1)
+                printf("path_id = %d, node_id = %d, path_range = %d, is_valid = %d, rdl = %u, rdr = %u, rfl = %u, rfr = %u\n", i, ti, sdt->path_range, sdt->is_valid, sdt->rd_l, sdt->rd_r, sdt->rf_l, sdt->rf_r);
         }
 #endif
 
@@ -979,6 +979,7 @@ void do_sv_detection(uint32_t rd_i, rd_handle_dt * t_rd_d, rst_ent_dt *t_rst_rec
             
 
             if (sdt->is_valid == 0)   continue;
+            //printf("here, path_id = %d, node_id = %d, path_range = %d, is_valid = %d, rdl = %u, rdr = %u, rfl = %u, rfr = %u\n", o, ti, sdt->path_range, sdt->is_valid, sdt->rd_l, sdt->rd_r, sdt->rf_l, sdt->rf_r);
 
             uint32_t t_rd_l = sdt->rd_l, t_rd_r = sdt->rd_r;
             uint32_t t_rf_l = sdt->rf_l, t_rf_r = sdt->rf_r;
@@ -1259,7 +1260,7 @@ void do_sv_detection(uint32_t rd_i, rd_handle_dt * t_rd_d, rst_ent_dt *t_rst_rec
             sdt->is_exd = 1;
             update_sd_hit_rg(sdt, a1, a2, b1, b2);
         
-#ifdef print_hit_exd
+#ifdef print_sv
             printf("Segment: [%c, %2lu,%2lu,%2lu,%2lu,%2lu]\n", \
                         sdt->dir==0?'+':'-', \
                         (unsigned long)sdt->rd_l_rg, (unsigned long)sdt->rd_r_rg, \
@@ -1714,9 +1715,16 @@ int single_core_aln(uint32_t rd_i, rd_handle_dt * t_rd_d)
      
     int which = -1, z = -1; 
     
-    if(dp_max[0] > dp_max[1] && dp_max[0] > _min_chain_score && dp_max[1] / (float)dp_max[0] < _secondary_ratio)
+    //if(dp_max[0] > dp_max[1] && dp_max[0] > _min_chain_score && dp_max[1] / (float)dp_max[0] < _secondary_ratio)
+    //    which = 0, z = 0;
+    //else if(dp_max[1] > dp_max[0] && dp_max[1] > _min_chain_score && dp_max[0] / (float)dp_max[1] < _secondary_ratio)
+    //    which = 1, z = 1;
+    //else if(dp_max[0] > _min_chain_score && dp_max[1] > _min_chain_score)
+    //    which = 2, z = (dp_max[0] > dp_max[1])? 0 : 1;
+
+    if(dp_max[0] > dp_max[1] && dp_max[1] < _min_chain_score)
         which = 0, z = 0;
-    else if(dp_max[1] > dp_max[0] && dp_max[1] > _min_chain_score && dp_max[0] / (float)dp_max[1] < _secondary_ratio)
+    else if(dp_max[1] > dp_max[0] && dp_max[0] < _min_chain_score)
         which = 1, z = 1;
     else if(dp_max[0] > _min_chain_score && dp_max[1] > _min_chain_score)
         which = 2, z = (dp_max[0] > dp_max[1])? 0 : 1;
@@ -1743,13 +1751,14 @@ int single_core_aln(uint32_t rd_i, rd_handle_dt * t_rd_d)
         do_sv_detection(rd_i, t_rd_d, t_rst_rec, t_rst_rec_n, sd_hit_rst, sd_hit_rst_n, sd_hit_a, sd_bt_path, sd_bt_n);
         
 #ifndef best_strand 
+        //best strand - > alt strand
         for (int ki=0; ki<sd_hit_rst_n[1-z]; ++ki)
         {
             sd_hit_t *sdt1 = sd_hit_rst[1-z] + (ki);
             uint32_t a1, a2, b1, b2, c1, c2, d1, d2;
             get_sd_hit_rg(sdt1, &a1, &a2, &b1, &b2);
 
-            //fprintf(stderr, "chr=%d, a1 = %u, a2 = %u, b1 = %u, b2 = %u\n", sdt1->chr_name_i, a1, a2, b1, b2);
+            //fprintf(stderr, "A. chr=%d, a1 = %u, a2 = %u, b1 = %u, b2 = %u\n", sdt1->chr_name_i, a1, a2, b1, b2);
 
             int check_f = 1;
             for (int kj=0; kj<sd_hit_rst_n[z]; ++kj)
@@ -1757,11 +1766,39 @@ int single_core_aln(uint32_t rd_i, rd_handle_dt * t_rd_d)
                 sd_hit_t *sdt2 = sd_hit_rst[z] + (kj);
                 get_sd_hit_rg(sdt2, &c1, &c2, &d1, &d2);
 
-                //fprintf(stderr, "chr=%d, c1 = %u, c2 = %u, d1 = %u, d2 = %u\n", sdt2->chr_name_i, c1, c2, d1, d2);
+                if (sdt2->is_valid == 0)
+                    continue;
+                //fprintf(stderr, "B. chr=%d, c1 = %u, c2 = %u, d1 = %u, d2 = %u\n", sdt2->chr_name_i, c1, c2, d1, d2);
+                //fprintf(stderr, "ratio = %f\n", overlap_l(c1,c2,a1,a2));
+                if(overlap_l(c1, c2, a1, a2) > 0.6)
+                {
+                    check_f = 0;
+                    break;
+                }
+            }
+            sdt1->is_valid = check_f;
+        }
+        // alt strand - > best strand
+        for (int ki=0; ki<sd_hit_rst_n[z]; ++ki)
+        {
+            sd_hit_t *sdt1 = sd_hit_rst[z] + (ki);
+            uint32_t a1, a2, b1, b2, c1, c2, d1, d2;
+            get_sd_hit_rg(sdt1, &a1, &a2, &b1, &b2);
+
+            //fprintf(stderr, "A. chr=%d, a1 = %u, a2 = %u, b1 = %u, b2 = %u\n", sdt1->chr_name_i, a1, a2, b1, b2);
+
+            int check_f = 1;
+            for (int kj=0; kj<sd_hit_rst_n[1-z]; ++kj)
+            {
+                sd_hit_t *sdt2 = sd_hit_rst[1-z] + (kj);
+                get_sd_hit_rg(sdt2, &c1, &c2, &d1, &d2);
 
                 if (sdt2->is_valid == 0)
                     continue;
-                if(overlap_l(c1, c2, a1, a2) > 0.6)
+
+                //fprintf(stderr, "B. chr=%d, c1 = %u, c2 = %u, d1 = %u, d2 = %u\n", sdt2->chr_name_i, c1, c2, d1, d2);
+                //fprintf(stderr, "ratio = %f\n", overlap_l(c1,c2,a1,a2));
+                if(overlap_l(c1, c2, a1, a2) > 0.8)
                 {
                     check_f = 0;
                     break;
@@ -1778,7 +1815,67 @@ int single_core_aln(uint32_t rd_i, rd_handle_dt * t_rd_d)
             sdt1->is_valid = 0;
         }
 #endif
+        // remove overlaped segment in the same strand
+        for (int ki=0; ki<sd_hit_rst_n[z]; ++ki)
+        {
+            sd_hit_t *sdt1 = sd_hit_rst[z] + (ki);
+            if (sdt1->is_valid == 0) continue;
+
+            uint32_t a1, a2, b1, b2, c1, c2, d1, d2;
+            get_sd_hit_rg(sdt1, &a1, &a2, &b1, &b2);
+
+            //fprintf(stderr, "C. chr=%d, a1 = %u, a2 = %u, b1 = %u, b2 = %u\n", sdt1->chr_name_i, a1, a2, b1, b2);
+
+            int check_f = 1;
+            for (int kj=ki+1; kj<sd_hit_rst_n[z]; ++kj)
+            {
+                sd_hit_t *sdt2 = sd_hit_rst[z] + (kj);
+                get_sd_hit_rg(sdt2, &c1, &c2, &d1, &d2);
+
+                if (sdt2->is_valid == 0)
+                    continue;
+
+                //fprintf(stderr, "D. chr=%d, c1 = %u, c2 = %u, d1 = %u, d2 = %u\n", sdt2->chr_name_i, c1, c2, d1, d2);
+                //fprintf(stderr, "ratio = %f\n", overlap_l(c1,c2,a1,a2));
+                if(overlap_l(c1, c2, a1, a2) > 0.8)
+                {
+                    check_f = 0;
+                    break;
+                }
+            }
+            sdt1->is_valid = check_f;
+        }
+        //
+        for (int ki=0; ki<sd_hit_rst_n[1-z]; ++ki)
+        {
+            sd_hit_t *sdt1 = sd_hit_rst[1-z] + (ki);
+            if (sdt1->is_valid == 0) continue;
+
+            uint32_t a1, a2, b1, b2, c1, c2, d1, d2;
+            get_sd_hit_rg(sdt1, &a1, &a2, &b1, &b2);
+
+            //fprintf(stderr, "E. chr=%d, a1 = %u, a2 = %u, b1 = %u, b2 = %u\n", sdt1->chr_name_i, a1, a2, b1, b2);
+
+            int check_f = 1;
+            for (int kj=ki+1; kj<sd_hit_rst_n[1-z]; ++kj)
+            {
+                sd_hit_t *sdt2 = sd_hit_rst[1-z] + (kj);
+                get_sd_hit_rg(sdt2, &c1, &c2, &d1, &d2);
+
+                if (sdt2->is_valid == 0)
+                    continue;
+
+                //fprintf(stderr, "F. chr=%d, c1 = %u, c2 = %u, d1 = %u, d2 = %u\n", sdt2->chr_name_i, c1, c2, d1, d2);
+                if(overlap_l(c1, c2, a1, a2) > 0.8)
+                {
+                    check_f = 0;
+                    break;
+                }
+            }
+            sdt1->is_valid = check_f;
+        }
         
+        // output segments
         int ki = 0, kj = 0;
         while (ki < sd_hit_rst_n[0] && kj < sd_hit_rst_n[1])
         {

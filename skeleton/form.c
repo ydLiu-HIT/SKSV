@@ -11,18 +11,17 @@ void opt_init(opt_t *opt)
     opt->db_k = 22;
     opt->seed_k = 22;
     opt->sdp_k = 7;
-    opt->rht_k = 7;
     
     opt->block_s = 30;
 
     opt->batch_size = 100000;
-    opt->the_sv_lim = 50;
-    opt->ref_lv_bnd_len = 100; //ccs, could be large or small depend on the speed
+    opt->the_sv_lim = 30;
+    opt->ref_lv_bnd_len = 5000; //ccs, could be large or small depend on the speed
 
-    opt->max_path_N = 3;
-    opt->rd_mx_gap = 2000;
-    opt->rf_mx_gap = 2000;
-    opt->secondary_ratio = 0.9;
+    opt->max_path_N = 4;
+    opt->rd_mx_gap = 1000;
+    opt->rf_mx_gap = 1000;
+    opt->secondary_ratio = 0.8;
     opt->overlap_ratio = 0.4;
     opt->min_chain_score = 100;
 
@@ -89,10 +88,9 @@ int help_usage()
 	fprintf(stderr, "    -d --hash_kmer        [INT]    K-mer length of local hash process. [%u]\n", HASH_KMER);
     fprintf(stderr, "    -B --batch_size       [INT]    The number of reads to be processed in one loop. [%u]\n", BATCH_SIZE);
     fprintf(stderr, "    -l --sv_lim           [INT]    The minimum length to consider a structure variant. [%u]\n", SV_LIM);
-    fprintf(stderr, "    -m --error_model      [INT]    Data type for different error model. [%u]\n", ERROR_MODEL);
     fprintf(stderr, "    -w --block            [INT]    The window length when extend node in the skeleton. [%d]\n", BLOCKS);
     fprintf(stderr, "    -x --edit_dis         [INT]    The maximum edit distance for Landua-Vishkin. [%u]\n", EDIT_DIS);
-    fprintf(stderr, "    -e --seed_step        [INT]    The interval of seeding. [%u]\n", SEED_STEP);
+    fprintf(stderr, "    -e --seed_step        [INT]    The seeding step. [%u]\n", SEED_STEP);
     fprintf(stderr, "    -M --extend_mx        [INT]    The maximum length for an anchor. [%u]\n", EXTEND_MX);
     fprintf(stderr, "    -N --top_N            [INT]    Max allowed skeleton paths. [%u]\n", TOP_N);
     fprintf(stderr, "    -g --rd_mx_gap        [INT]    Maximum allowed distance in read that two anchor can be connected. [%u]\n", RD_GAP);
@@ -127,10 +125,9 @@ int aln_usage(void)
 	fprintf(stderr, "    -d --hash_kmer        [INT]    K-mer length of local hash process. [%u]\n", HASH_KMER);
     fprintf(stderr, "    -B --batch_size       [INT]    The number of reads to be processed in one loop. [%u]\n", BATCH_SIZE);
     fprintf(stderr, "    -l --sv_lim           [INT]    The minimum length to consider a structure variant. [%u]\n", SV_LIM);
-    fprintf(stderr, "    -m --error_model      [INT]    Data type for different error model. [%u]\n", ERROR_MODEL);
     fprintf(stderr, "    -w --block            [INT]    The window length when extend node in the skeleton. [%d]\n", BLOCKS);
     fprintf(stderr, "    -x --edit_dis         [INT]    The maximum edit distance for Landua-Vishkin. [%u]\n", EDIT_DIS);
-    fprintf(stderr, "    -e --seed_step        [INT]    The interval of seeding. [%u]\n", SEED_STEP);
+    fprintf(stderr, "    -e --seed_step        [INT]    The seeding step. [%u]\n", SEED_STEP);
     fprintf(stderr, "    -M --extend_mx        [INT]    The maximum length for an anchor. [%u]\n", EXTEND_MX);
     fprintf(stderr, "    -N --top_N            [INT]    Max allowed skeleton paths. [%u]\n", TOP_N);
     fprintf(stderr, "    -g --rd_mx_gap        [INT]    Maximum allowed distance in read that two anchor can be connected. [%u]\n", RD_GAP);
@@ -144,7 +141,7 @@ int aln_usage(void)
     //fprintf(stderr, "    -f --rf_match_mx      [INT]    ****\n");
 
     fprintf(stderr, "\nOutput options:\n\n");
-    fprintf(stderr, "    -o --output    [STR]    Output file for SV signatures in svseg format. [%s]\n", OUTPUT_PREFIX);
+    fprintf(stderr, "    -o --output           [STR]    Output file for SV signatures in svseg format. [%s]\n", OUTPUT_PREFIX);
     fprintf(stderr, "    -h --help                      Show detailed usage.\n");
 
     
@@ -197,7 +194,6 @@ int opt_parse(int argc, char *argv[], opt_t *opt)
             case 'p': opt->secondary_ratio = atof(optarg); break;
             case 'P': opt->overlap_ratio = atof(optarg); break;
             case 'Y': opt->min_chain_score = atoi(optarg); break;
-            case 'm': opt->data_type= atoi(optarg); break;
             case 's': opt->seed_k = atoi(optarg); break;
             case 'd': opt->sdp_k = atoi(optarg); break;
             case 'w': opt->block_s = atoi(optarg); break;
@@ -220,7 +216,7 @@ int opt_parse(int argc, char *argv[], opt_t *opt)
     if (opt->seed_k > 22)  opt->seed_k = 22;
     else  if (opt->seed_k < 11) opt->seed_k = 11;
 
-    if (opt->sdp_k > 11)  opt->sdp_k = 11;
+    if (opt->sdp_k > 14)  opt->sdp_k = 14; //11
     else  if (opt->sdp_k < 6) opt->sdp_k = 6;
 
     switch (opt->data_type)
