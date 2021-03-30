@@ -116,8 +116,6 @@ function parse_CALL() {
     TASK=""
     eval set -- "${ARGS}"
 
-    echo $ARGS
-
     while true
     do
         case "$1" in 
@@ -262,7 +260,7 @@ elif [ "${CMD}" = "aln" ]; then
     fi
 elif [ "${CMD}" = "call" ]; then
     CALL_BIN="${basepath}/calling/SKSV-call.py"
-    ARGS=`getopt -a -o hvt:b:S:p:q:r:s:l:L: --long version,threads:,batches:,sample:,retain_work_dir,min_read_len:,merge_del_threshold:,merge_ins_threshold:,min_support:,min_size:,max_size:,min_siglength:,genotype,gt_round:,read:,print_allele_seq,max_cluster_bias_INS:,report_readid,diff_ratio_merging_INS:,max_cluster_bias_DEL:,diff_ratio_merging_DEL:,max_cluster_bias_INV:,max_cluster_bias_DUP:,max_cluster_bias_TRA:,diff_ratio_filtering_TRA: -n 'SKSV' -- "$@"`
+    ARGS=`getopt -o hvt:b:S:p:q:r:s:l:L: --long version,threads:,batches:,sample:,retain_work_dir,min_read_len:,merge_del_threshold:,merge_ins_threshold:,min_support:,min_size:,max_size:,min_siglength:,genotype,gt_round:,read:,print_allele_seq,max_cluster_bias_INS:,report_readid,diff_ratio_merging_INS:,max_cluster_bias_DEL:,diff_ratio_merging_DEL:,max_cluster_bias_INV:,max_cluster_bias_DUP:,max_cluster_bias_TRA:,diff_ratio_filtering_TRA: -n 'SKSV' -- "$@"`
     if [ $# -lt 2 ]; then
         if [ -x ${CALL_BIN} ]; then
             python ${CALL_BIN}
@@ -273,9 +271,8 @@ elif [ "${CMD}" = "call" ]; then
     else
         TASK=$(parse_CALL)
         TASK="python "${CALL_BIN}" "${TASK}  #pypy3
-        echo $TASK
         #  run calling #
-        #$TASK 
+        $TASK 
     fi
 else
     usage

@@ -454,7 +454,7 @@ def rst_ctrl(args, argv):
     candidate["TRA"] = defaultdict(list)
     if args.print_allele_seq:
         if not os.path.exists(args.read):
-            logging.info("[ERROR] --read is need to print allele sequence!")
+            logging.info("[ERROR] --read is necessary to print allele sequence!")
             exit()
     if args.work_dir[-1] == '/':
         temporary_dir = args.work_dir
