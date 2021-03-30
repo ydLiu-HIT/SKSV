@@ -10,7 +10,6 @@ ultrafast structural variation detection from circular consensus sequencing read
     ./SKSV index ref.fa index_route   # build index 
     ./SKSV aln index_route read.fq    # skeleton-alignment
     ./SKSV call in.svseg ref.fa out.vcf work_dir # call variants using in.svseg file
-    (User should `mkdir work_dir` first)
         
     ## add to enviroment path
     vim ~/.bashrc
@@ -18,7 +17,8 @@ ultrafast structural variation detection from circular consensus sequencing read
     
        
 ## Introduction
-The rising circular consensus sequencing (CCS) long-reads promise unprecedentedly comprehensive structural variants detection. However, the state-of-the-art alignment-based SV calling pipelines are computationally intensive due to the generation of complete read-alignments and its post-processing. Herein, we propose a **Sk**eleton-based analysis toolkit for **S**tructural **V**ariation detection (SKSV). Compared with the alignment-based SV calling pipeline on a HG002 real CCS dataset, SKSV achieves better F1 scores for discovering insertions and deletions with an order of magnitude of acceleration.
+
+Circular consensus sequencing (CCS) reads are promising for the comprehensive detection of structural variants (SVs). However, alignment-based SV calling pipelines are computationally intensive due to the generation of complete read-alignments and its post-processing. Herein, we propose a **SK**eleton-based analysis toolkit for **S**tructural **V**ariation detection (SKSV).  Benchmarks on real and simulated datasets demonstrate that SKSV has an order of magnitude of faster speed than state-of-the-art SV calling ap-proaches, moreover, it enables to well-handle various types of SVs with higher F1 scores.
 
 
 
@@ -63,14 +63,14 @@ Algorithm options:
     -l --sv_lim           [INT]    The minimum length to consider a structure variant. [30]
     -m --error_model      [INT]    Data type for different error model. [1]
     -w --block            [INT]    The window length when extend node in the skeleton. [30]
-    -x --edit_dis         [INT]    The maximum edit distance for Landua-Vishkin. [3]
+    -x --edit_dis         [INT]    The maximum edit distance for Landua-Vishkin. [0]
     -e --seed_step        [INT]    The interval of seeding. [20]
-    -M --extend_mx        [INT]    The maximum length for an anchor. [200]
-    -N --top_N            [INT]    Max allowed skeleton paths. [3]
-    -g --rd_mx_gap        [INT]    Maximum allowed distance in read that two anchor can be connected. [1500]
-    -G --rf_mx_gap        [INT]    Maximum allowed distance in reference that two anchor can be connected. [2000]
+    -M --extend_mx        [INT]    The maximum length for an anchor. [5000]
+    -N --top_N            [INT]    Max allowed skeleton paths. [4]
+    -g --rd_mx_gap        [INT]    Maximum allowed distance in read that two anchor can be connected. [1000]
+    -G --rf_mx_gap        [INT]    Maximum allowed distance in reference that two anchor can be connected. [1000]
     -Y --min_chain_score  [INT]    The minimum skeleton chaining score to be processed. [100]
-    -p --secondary_ratio  [FLAOT]  Minimum secondary-to-primary alignment score ratio. [0.9]
+    -p --secondary_ratio  [FLAOT]  Minimum secondary-to-primary alignment score ratio. [0.8]
     -P --overlap_ratio    [FLAOT]  Minimum overlap ratio to consider tow skeletons one as primary one as secondary. [0.4]
 
 Output options:
@@ -101,14 +101,10 @@ optional arguments:
 Collection of SV signatures:
   -p MAX_SPLIT_PARTS, --max_split_parts MAX_SPLIT_PARTS
                         Maximum number of split segments a read may be aligned before it is ignored.[7]
-  -q MIN_MAPQ, --min_mapq MIN_MAPQ
-                        Minimum mapping quality value of alignment to be taken into account.[20]
-  -r MIN_READ_LEN, --min_read_len MIN_READ_LEN
-                        Ignores reads that only report alignments with not longer than bp.[500]
-  -md MERGE_DEL_THRESHOLD, --merge_del_threshold MERGE_DEL_THRESHOLD
-                        Maximum distance of deletion signals to be merged.[0]
-  -mi MERGE_INS_THRESHOLD, --merge_ins_threshold MERGE_INS_THRESHOLD
-                        Maximum distance of insertion signals to be merged.[100]
+  --merge_del_threshold, --merge_del_threshold MERGE_DEL_THRESHOLD
+                        Maximum distance of deletion signals to be merged.[500]
+  --merge_ins_threshold, --merge_ins_threshold MERGE_INS_THRESHOLD
+                        Maximum distance of insertion signals to be merged.[500]
 
 Generation of SV clusters:
   -s MIN_SUPPORT, --min_support MIN_SUPPORT
@@ -123,20 +119,20 @@ Generation of SV clusters:
 Computing genotypes:
   --genotype            Enable to generate genotypes.
   --gt_round GT_ROUND   Maximum round of iteration for alignments searching if perform genotyping.[500]
+  
+Generate allele sequence:
+  --read READ           Raw reads in bgzip fasta/fastq format with index by samtools for extract inserted sequence for insertions.
+  --print_allele_seq    Enable to print inserted and deleted sequence for an insertion and deletion variants. If --print_allele_seq was set, --read is needed.
 
 Advanced:
   --max_cluster_bias_INS MAX_CLUSTER_BIAS_INS
-                        Maximum distance to cluster read together for insertion.[100]
+                        Maximum distance to cluster read together for insertion.[800]
   --diff_ratio_merging_INS DIFF_RATIO_MERGING_INS
-                        Do not merge breakpoints with basepair identity more than [0.2] for insertion.
-  --diff_ratio_filtering_INS DIFF_RATIO_FILTERING_INS
-                        Filter breakpoints with basepair identity less than [0.6] for insertion.
+                        Do not merge breakpoints with basepair identity more than [0.9] for insertion.
   --max_cluster_bias_DEL MAX_CLUSTER_BIAS_DEL
-                        Maximum distance to cluster read together for deletion.[200]
+                        Maximum distance to cluster read together for deletion.[1000]
   --diff_ratio_merging_DEL DIFF_RATIO_MERGING_DEL
-                        Do not merge breakpoints with basepair identity more than [0.3] for deletion.
-  --diff_ratio_filtering_DEL DIFF_RATIO_FILTERING_DEL
-                        Filter breakpoints with basepair identity less than [0.7] for deletion.
+                        Do not merge breakpoints with basepair identity more than [0.5] for deletion.
   --max_cluster_bias_INV MAX_CLUSTER_BIAS_INV
                         Maximum distance to cluster read together for inversion.[500]
   --max_cluster_bias_DUP MAX_CLUSTER_BIAS_DUP
