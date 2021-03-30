@@ -157,6 +157,7 @@ Truvari (v2.0.0, https://github.com/spiralgenetics/truvari) was used to assess t
 ## Reference
 
 Zook, J.M., et al. Extensive sequencing of seven human genomes to characterize benchmark reference materials. Sci Data 2016;3.
+
 Zook, J.M., et al. A robust benchmark for detection of germline large deletions and insertions. Nat Biotechnol 2020.
 
 
