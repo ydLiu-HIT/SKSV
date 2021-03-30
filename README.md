@@ -150,7 +150,15 @@ The real HG002 PacBio CCS reads were downloaded from: https://ftp-trace.ncbi.nlm
 
 The GIAB ground truth set and corresponding high confidence region set were downloaded from: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/NIST_SV_v0.6/.
 
-Truvari (v2.0.0, https://github.com/spiralgenetics/truvari) was used to assess the precision, recall, and F1 score.
+The new draft difficult medically relevant gene Structural Variant benchmark from GIAB (Zook, et al., 2016) that includes some SVs in segmental duplications and corresponding benchmark bed files were download from https://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/analysis/NIST_HG002_medical_genes_SV_benchmark_v0.01/
+
+Truvari (v2.0.0, https://github.com/spiralgenetics/truvari) was used to assess the precision, recall, and F1 score (Zook, et al., 2020)..
+
+## Reference
+
+Zook, J.M., et al. Extensive sequencing of seven human genomes to characterize benchmark reference materials. Sci Data 2016;3.
+Zook, J.M., et al. A robust benchmark for detection of germline large deletions and insertions. Nat Biotechnol 2020.
+
 
 ## Contact
 For advising, bug reporting and requiring help, please post on **[Github Issues](https://github.com/ydLiu-HIT/SKSV/issues)** or contact ydliu@hit.edu.cn.

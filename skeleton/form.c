@@ -88,6 +88,7 @@ int help_usage()
 	fprintf(stderr, "    -d --hash_kmer        [INT]    K-mer length of local hash process. [%u]\n", HASH_KMER);
     fprintf(stderr, "    -B --batch_size       [INT]    The number of reads to be processed in one loop. [%u]\n", BATCH_SIZE);
     fprintf(stderr, "    -l --sv_lim           [INT]    The minimum length to consider a structure variant. [%u]\n", SV_LIM);
+    fprintf(stderr, "    -m --error_model      [INT]    Data type for different error model. [%u]\n", ERROR_MODEL);
     fprintf(stderr, "    -w --block            [INT]    The window length when extend node in the skeleton. [%d]\n", BLOCKS);
     fprintf(stderr, "    -x --edit_dis         [INT]    The maximum edit distance for Landua-Vishkin. [%u]\n", EDIT_DIS);
     fprintf(stderr, "    -e --seed_step        [INT]    The seeding step. [%u]\n", SEED_STEP);
@@ -125,6 +126,7 @@ int aln_usage(void)
 	fprintf(stderr, "    -d --hash_kmer        [INT]    K-mer length of local hash process. [%u]\n", HASH_KMER);
     fprintf(stderr, "    -B --batch_size       [INT]    The number of reads to be processed in one loop. [%u]\n", BATCH_SIZE);
     fprintf(stderr, "    -l --sv_lim           [INT]    The minimum length to consider a structure variant. [%u]\n", SV_LIM);
+    fprintf(stderr, "    -m --error_model      [INT]    Data type for different error model. [%u]\n", ERROR_MODEL);
     fprintf(stderr, "    -w --block            [INT]    The window length when extend node in the skeleton. [%d]\n", BLOCKS);
     fprintf(stderr, "    -x --edit_dis         [INT]    The maximum edit distance for Landua-Vishkin. [%u]\n", EDIT_DIS);
     fprintf(stderr, "    -e --seed_step        [INT]    The seeding step. [%u]\n", SEED_STEP);
@@ -194,6 +196,7 @@ int opt_parse(int argc, char *argv[], opt_t *opt)
             case 'p': opt->secondary_ratio = atof(optarg); break;
             case 'P': opt->overlap_ratio = atof(optarg); break;
             case 'Y': opt->min_chain_score = atoi(optarg); break;
+            case 'm': opt->data_type= atoi(optarg); break;
             case 's': opt->seed_k = atoi(optarg); break;
             case 'd': opt->sdp_k = atoi(optarg); break;
             case 'w': opt->block_s = atoi(optarg); break;

@@ -141,7 +141,7 @@ def parseArgs(argv):
                         default="None",
                         help="Raw reads in bgzip fasta/fastq format with index by samtools for extract inserted sequence for insertions.")
     GroupSequence.add_argument('--print_allele_seq',
-                               help="Enable to print inserted sequence for an insertion variant. If --print_allele_seq was set, --read is needed.",
+                               help="Enable to print inserted/deleted sequence for an insertion/deletion variant. If --print_allele_seq was set, --read is needed.",
                                action="store_true")
 
     # GroupGenotype.add_argument('--hom',
