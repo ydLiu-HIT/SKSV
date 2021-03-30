@@ -101,9 +101,9 @@ optional arguments:
 Collection of SV signatures:
   -p MAX_SPLIT_PARTS, --max_split_parts MAX_SPLIT_PARTS
                         Maximum number of split segments a read may be aligned before it is ignored.[7]
-  --merge_del_threshold, --merge_del_threshold MERGE_DEL_THRESHOLD
+  --merge_del_threshold MERGE_DEL_THRESHOLD
                         Maximum distance of deletion signals to be merged.[500]
-  --merge_ins_threshold, --merge_ins_threshold MERGE_INS_THRESHOLD
+  --merge_ins_threshold MERGE_INS_THRESHOLD
                         Maximum distance of insertion signals to be merged.[500]
 
 Generation of SV clusters:
