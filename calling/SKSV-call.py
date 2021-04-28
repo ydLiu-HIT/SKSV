@@ -460,8 +460,19 @@ def rst_ctrl(args, argv):
         temporary_dir = args.work_dir
     else:
         temporary_dir = args.work_dir+'/'
+
     if not os.path.exists(temporary_dir):
         os.makedirs(temporary_dir)
+
+    isFastq = False
+    c = args.read
+    if c.endswith(".fa") or c.endswith(".fasta") or c.endswith(".fa.gz") or c.endswith(".fasta.gz"):
+        isFastq = False
+    elif c.endswith(".fq") or c.endswith(".fastq") or c.endswith(".fq.gz") or c.endswith(".fastq.gz"):
+        isFastq = True
+    else:
+        logging.info("[ERROR] The input reads should be fa/fq format")
+        exit(0)
     
     load_rst(args.input, candidate, args.merge_ins_threshold, args.merge_del_threshold)
     file = open("%ssignals.txt"%temporary_dir, 'w')
@@ -549,6 +560,12 @@ def main_ctrl(args, argv):
         result.append(analysis_pools.map_async(run_del, para))
         logging.info("Finished %s:%s." % (chr, "DEL"))
 
+    c = args.read
+    if c.endswith(".fa") or c.endswith(".fasta") or c.endswith(".fa.gz") or c.endswith(".fasta.gz"):
+        isFastq = False
+    elif c.endswith(".fq") or c.endswith(".fastq") or c.endswith(".fq.gz") or c.endswith(".fastq.gz"):
+        isFastq = True
+
     # +++++INS+++++
     for chr in valuable_chr["INS"]:
         para = [("%s%s.sigs" % (temporary_dir, "INS"),
@@ -563,7 +580,7 @@ def main_ctrl(args, argv):
                  args.genotype,
                  args.gt_round,
                  args.read,
-                 False,
+                 isFastq,
                  args.print_allele_seq)]
         result.append(analysis_pools.map_async(run_ins, para))
         logging.info("Finished %s:%s." % (chr, "INS"))
