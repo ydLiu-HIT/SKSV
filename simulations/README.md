@@ -13,4 +13,5 @@ for type in {inv,dup,tra,}; do VISOR HACk -g hs37d5.fasta -bed sim_${type}.bed -
 ### Generate simulated reads using the simulated reference genome
 ```
 for type in {inv,dup,tra,}; do VISOR LASeR -g hs37d5.fa -s donor_genome_${type}/ -bed LASeR.bed -o data_${type}_30x -c 30 --threads 16 --noaddtag -a 0.99 -l 12000 -r 10:60:30 --readstype PB --ccs; done
+
 ```
