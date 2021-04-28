@@ -20,7 +20,7 @@ ultrafast structural variation detection from circular consensus sequencing read
 
 Circular consensus sequencing (CCS) reads are promising for the comprehensive detection of structural variants (SVs). However, alignment-based SV calling pipelines are computationally intensive due to the generation of complete read-alignments and its post-processing. Herein, we propose a **SK**eleton-based analysis toolkit for **S**tructural **V**ariation detection (SKSV).  Benchmarks on real and simulated datasets demonstrate that SKSV has an order of magnitude of faster speed than state-of-the-art SV calling ap-proaches, moreover, it enables to well-handle various types of SVs with higher F1 scores.
 
-##Dependence
+## Dependence
 ```
 python3
 Biopython
