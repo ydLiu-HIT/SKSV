@@ -42,6 +42,10 @@ function parse_ALN() {
                 TASK=$TASK$1" "$2" "
                 shift 2
                 ;;
+            -m|--error_model)
+                TASK=$TASK$1" "$2" "
+                shift 2
+                ;;
             -w|--block)
                 TASK=$TASK$1" "$2" "
                 shift 2
