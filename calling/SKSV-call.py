@@ -464,15 +464,6 @@ def rst_ctrl(args, argv):
     if not os.path.exists(temporary_dir):
         os.makedirs(temporary_dir)
 
-    isFastq = False
-    c = args.read
-    if c.endswith(".fa") or c.endswith(".fasta") or c.endswith(".fa.gz") or c.endswith(".fasta.gz"):
-        isFastq = False
-    elif c.endswith(".fq") or c.endswith(".fastq") or c.endswith(".fq.gz") or c.endswith(".fastq.gz"):
-        isFastq = True
-    else:
-        logging.info("[ERROR] The input reads should be fa/fq format")
-        exit(0)
     
     load_rst(args.input, candidate, args.merge_ins_threshold, args.merge_del_threshold)
     file = open("%ssignals.txt"%temporary_dir, 'w')
@@ -561,6 +552,7 @@ def main_ctrl(args, argv):
         logging.info("Finished %s:%s." % (chr, "DEL"))
 
     c = args.read
+    isFastq = False
     if c.endswith(".fa") or c.endswith(".fasta") or c.endswith(".fa.gz") or c.endswith(".fasta.gz"):
         isFastq = False
     elif c.endswith(".fq") or c.endswith(".fastq") or c.endswith(".fq.gz") or c.endswith(".fastq.gz"):
